@@ -21,15 +21,15 @@ sudo ansible-playbook site.yml
 certbot certonly --manual -d *.{{ domain }} -d {{ domain }} --agree-tos --no-bootstrap --manual-public-ip-logging-ok --expand --preferred-challenges dns-01 --server https://acme-v02.api.letsencrypt.org/directory
 
 ##### 4) Harden Apache
-Add this block of text, uncommented, to apache ssl conf inside vhost block. Normally located @ /etc/apache2/sites-available/*mydomain.com-le-ssl.conf*
+Add this block of text, uncommented, to apache ssl conf inside vhost block. Normally located @ /etc/apache2/sites-available/***mydomain.com-le-ssl.conf***
 
 ######     APACHE 2 SECURE CONFIG                                                                                     
 
-SSLCipherSuite EECDH+AESGCM:EDH+AESGCM
-SSLProtocol -all +TLSv1.3 +TLSv1.2
-SSLOpenSSLConfCmd Curves X25519:secp521r1:secp384r1:prime256v1
-SSLHonorCipherOrder On
-Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+SSLCipherSuite EECDH+AESGCM:EDH+AESGCM \n
+SSLProtocol -all +TLSv1.3 +TLSv1.2 \n
+SSLOpenSSLConfCmd Curves X25519:secp521r1:secp384r1:prime256v1 \n
+SSLHonorCipherOrder On \n
+Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" \n
 Header always set X-Frame-Options DENY
 Header always set X-Content-Type-Options nosniff
 SSLCompression off
