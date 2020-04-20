@@ -117,7 +117,7 @@
        insertafter: '^(.*)DocumentRoot(.*)$'
        block: |3
                <Directory /var/www/{{ domain }}/>
-                    Options +FollowSymlinks
+                    Options +FollowSymlinks -Indexes
                     AllowOverride All
                     Require all granted
                </Directory>
