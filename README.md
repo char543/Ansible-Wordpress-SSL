@@ -9,7 +9,7 @@ For now it is tested on ubuntu 18.04 but may work on other variants.
 
 ### Steps
 
-Before you start, Set cloudflare ssl to 'off' (or turn off your other cdn / domain based ssl). This playbook assumes a fresh server, it may work otherwise based on existing configuration but isn't reccomended.
+Before you start, Set cloudflare ssl to 'off' (or turn off your other cdn / domain based ssl). This playbook assumes a fresh server, it may work otherwise based on existing configuration but it's reccomendedto begin with a fresh on.
 
 ##### 1) Install Ansible with this command
 sudo apt update && sudo apt install software-properties-common && sudo apt install python-apt -y && sudo apt-add-repository --yes --update ppa:ansible/ansible && sudo apt install ansible -y
