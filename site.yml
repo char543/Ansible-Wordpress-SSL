@@ -11,7 +11,7 @@
     mysql_db: wpdb
     mysql_root_pass: root
     email: your-email@site.com
-    domain: yourdomain.com ### > LEAVE AS " html "  IF YOU DON'T HAVE A DOMAIN!
+    domain: yourdomain.com 
 
   tasks:
 
