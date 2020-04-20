@@ -45,11 +45,12 @@ SSLStaplingCache "shmcb:logs/stapling-cache(150000)"
 #### 5) Restart Apache
 sudo service apache2 restart 
 
-Set cloudflare ssl to 'on'
-
 
 ########################################################################################################################
 
+That's it! You can set cloudflare (or other) SSL back to 'on' and re-enable proxies etc.
+
+Below is a list of free services i used to audit the sites after deployment.
 
 ###### qualys ssl labs checker
 ###### enable dnssec
