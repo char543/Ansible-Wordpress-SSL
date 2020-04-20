@@ -25,11 +25,11 @@ Add this block of text, uncommented, to apache ssl conf inside vhost block. Norm
 
 ######     APACHE 2 SECURE CONFIG                                                                                     
 
-SSLCipherSuite EECDH+AESGCM:EDH+AESGCM \n
-SSLProtocol -all +TLSv1.3 +TLSv1.2 \n
-SSLOpenSSLConfCmd Curves X25519:secp521r1:secp384r1:prime256v1 \n
-SSLHonorCipherOrder On \n
-Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" \n
+SSLCipherSuite EECDH+AESGCM:EDH+AESGCM  
+SSLProtocol -all +TLSv1.3 +TLSv1.2  
+SSLOpenSSLConfCmd Curves X25519:secp521r1:secp384r1:prime256v1  
+SSLHonorCipherOrder On  
+Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"  
 Header always set X-Frame-Options DENY
 Header always set X-Content-Type-Options nosniff
 SSLCompression off
