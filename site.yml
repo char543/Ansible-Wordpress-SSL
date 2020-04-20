@@ -1,0 +1,403 @@
+---
+- hosts: localhost
+  become: true
+  vars_files:
+#    - path/to/variables/file 
+
+  vars:
+    username: nonroot
+    mysql_user: dbuser
+    mysql_pass: pass
+    mysql_db: wpdb
+    mysql_root_pass: root
+    email: your-email@site.com
+    domain: yourdomain.com ### > LEAVE AS " html "  IF YOU DON'T HAVE A DOMAIN!
+
+  tasks:
+
+# Initial System Setup
+   - name: sudo apt-get update && sudo apt-get upgrade
+     apt: update_cache=yes upgrade=yes
+     tags: [ system ]
+
+   - name: Install required packages
+     package: name={{ item }} state=present
+     with_items:
+      - curl
+      - apache2
+      - mysql-server
+#      - php-mcrypt # MOVED, FIND ALTERNATIVE
+      - libapache2-mod-php
+#      - libapache2-mod-security2
+#      - libapache2-mod-evasive
+      - php
+      - php-mysql
+      - php-gd
+      - php-fpm
+      - php-cli
+      - php-json
+      - php-curl
+      - php-mbstring
+      - php-xml
+      - php-xmlrpc
+      - php-soap
+      - php-intl
+      - php-zip
+      - python-mysqldb
+     tags: [ system ]
+
+   - name: create non root user
+     shell: adduser {{ username }}
+     args:
+       warn: false
+     tags: [ system ]  
+
+   - name: Granting admin privileges
+     shell: usermod -aG sudo {{ username }}
+     args:
+       warn: false
+     tags: [ system ]  
+
+   - name: Copy ssh keys and directory structure
+     shell: rsync --archive --chown={{ username }}:{{ username }} ~/.ssh /home/{{ username }}
+     args:
+       warn: false
+
+   - name: Enable firewall
+     shell: sudo ufw enable && sudo ufw allow "Apache Full" && sudo ufw reload && sudo ufw allow "OpenSSH" && sudo ufw reload
+     args:
+       warn: false
+     tags: [ system ]
+
+# Apache Configuration
+   - name: Ensure doc root exists
+     file:
+       path: /var/www/{{ domain }}
+       state: directory
+     tags: [ apache ]
+
+   - name: Remove blank lines in apache2 config file
+     lineinfile:
+       path: /etc/apache2/sites-available/000-default.conf
+       state: absent
+       regexp: '^$'
+     tags: [ apache ]  
+
+   - name: Remove comments in apache2 config file
+     lineinfile:
+       path: /etc/apache2/sites-available/000-default.conf
+       state: absent
+       regexp: '^(.*)#(.*)$'
+     tags: [ apache ]  
+
+   - name: Lineinfile DocumentRoot apache
+     lineinfile:
+       path: /etc/apache2/sites-available/000-default.conf
+       regexp: '^(.*)DocumentRoot(.*)$'
+       line: "     DocumentRoot /var/www/{{ domain }}"
+     tags: [ apache ]  
+
+   - name: Lineinfile ServerName apache
+     lineinfile:
+       path: /etc/apache2/sites-available/000-default.conf
+       line: "     ServerName {{ domain }}"
+       insertafter: '^(.*)ServerAdmin(.*)$'
+     tags: [ apache ]  
+
+   - name: Lineinfile ServerAlias apache
+     lineinfile:
+       path: /etc/apache2/sites-available/000-default.conf
+       line: "     ServerAlias www.{{ domain }}"
+       insertafter: '^(.*)ServerName(.*)$'
+
+   - name: Add directive block to apache2 config for follow symlinks / enable .htaccess files
+     blockinfile:
+       path: /etc/apache2/sites-available/000-default.conf
+       marker: ""
+       insertafter: '^(.*)DocumentRoot(.*)$'
+       block: |3
+               <Directory /var/www/{{ domain }}/>
+                    Options +FollowSymlinks
+                    AllowOverride All
+                    Require all granted
+               </Directory>
+     tags: [ apache ]
+
+   - name: Edit mods enabled to first seek .php files
+     lineinfile:
+       path: /etc/apache2/mods-enabled/dir.conf
+       regexp: '^(.*)DirectoryIndex(.*)$'
+       line: '        DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm'
+     tags: [ apache ]
+
+   - name: Edit security.conf to obscure server info 
+     lineinfile:
+       path: /etc/apache2/conf-enabled/security.conf
+       regexp: '^ServerTokens(.*)$'
+       line: 'ServerTokens Prod'
+     tags: [ apache ]   
+
+   - name: Edit security.conf to obscure server info 
+     lineinfile:
+       path: /etc/apache2/conf-enabled/security.conf
+       regexp: '^ServerSignature(.*)$'
+       line: 'ServerSignature Off'
+     tags: [ apache ] 
+
+   - name: Enable rewrite module
+     shell: sudo a2enmod rewrite
+     args:
+       warn: false
+     tags: [ apache ]
+
+   - name: Enable headers module
+     shell: sudo a2enmod headers
+     args:
+       warn: false
+     tags: [ apache ]    
+
+   - name: Disable config so far 
+     shell: sudo a2dissite 000-default.conf
+     args:
+       warn: false
+     tags: [ apache ]  
+
+   - name: Rename config 
+     shell: sudo mv /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/{{ domain }}.conf
+     args:
+       warn: false
+     tags: [ apache ]
+
+   - name: Enable config
+     shell: sudo a2ensite {{ domain }}.conf
+     args:
+       warn: false
+     tags: [ apache ]
+
+   - name: Enable php fpm
+     shell: a2enmod proxy_fcgi setenvif && systemctl restart apache2 && a2enconf php7.2-fpm && systemctl reload apache2
+     args:
+       warn: false
+     tags: [ apache ]       
+
+# Mysql Configuration
+   - name: Set the root password
+     mysql_user:
+       name: root
+       password: "{{ mysql_root_pass }}"
+       login_unix_socket: /var/run/mysqld/mysqld.sock
+     tags: [ mysql ]
+
+   - name: Disallow remote root login
+     shell: mysql -u root -p{{ mysql_root_pass }} -NBe "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
+     args:
+       warn: false
+     tags: [ mysql ]
+
+   - name: Remove anonymous MySQL users
+     shell: mysql -u root -p{{ mysql_root_pass }} -NBe "DELETE FROM mysql.user WHERE User='';"
+     args:
+       warn: false
+     tags: [ mysql ]
+
+   - name: Remove test database
+     shell: mysql -u root -p{{ mysql_root_pass }} -NBe "DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';"
+     args:
+       warn: false
+     tags: [ mysql ]
+
+   - name: Creates database for Wordpress
+     shell: mysql -u root -p{{ mysql_root_pass }} -NBe "CREATE DATABASE {{ mysql_db }} DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+     args:
+       warn: false
+     tags: [ mysql ]
+
+   - name: Create MySQL user for Wordpress
+     mysql_user:
+       name: "{{ mysql_user }}"
+       password: "{{ mysql_pass }}"
+       priv: "{{ mysql_db }}.*:ALL"
+       state: present
+       login_user: root
+       login_password: "{{ mysql_root_pass }}"
+     tags: [ mysql ]
+
+   - name: Flush MySQL privileges
+     shell: mysql -u root -p{{ mysql_root_pass }} -NBe "FLUSH PRIVILEGES;"
+     args:
+       warn: false
+     tags: [ mysql ]
+
+# WordPress Configuration
+   - name: Get Wordpress
+     unarchive:
+       src: https://wordpress.org/latest.tar.gz
+       dest: "/var/www/{{ domain }}"
+       remote_src: yes
+     tags: [ wordpress ]
+
+   - name: Setup folder structure and permissions
+     shell: |
+          sudo mv /var/www/{{ domain }}/wordpress/* /var/www/{{ domain }}/
+          touch /var/www/{{ domain }}/.htaccess
+          cp /var/www/{{ domain }}/wp-config-sample.php /var/www/{{ domain }}/wp-config.php
+          mkdir /var/www/{{ domain }}/wp-content/upgrade
+          sudo chown -R www-data:www-data /var/www/{{ domain }}
+          sudo find /var/www/{{ domain }}/ -type d -exec chmod 750 {} \;
+          sudo find /var/www/{{ domain }}/ -type f -exec chmod 640 {} \;
+          rm -r /var/www/{{ domain }}/wordpress/
+     args:
+       warn: false
+     tags: [ wordpress ]  
+
+   - name: Set .htaccess configuration for redirection to ssl secured root 
+     blockinfile:
+       path: /var/www/{{ domain }}/.htaccess
+       marker: ""
+       block: |
+               RewriteEngine On
+               # match any URL with www and rewrite it to https without the www
+               RewriteCond %{HTTP_HOST} ^(www\.)(.*) [NC]
+               RewriteRule (.*) https://%2%{REQUEST_URI} [L,R=301]
+               # match urls that are non https (without the www)
+               RewriteCond %{HTTPS} off
+               RewriteCond %{HTTP_HOST} !^(www\.)(.*) [NC]
+               RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+               Header set X-XSS-Protection "1; mode=block"
+               # Header set Content-Security-Policy: "frame-ancestors 'none'; require-trusted-types-for 'script'"
+               Header set Referrer-Policy: "no-referrer"
+     tags: [ apache ]
+
+   - name: Get fresh salt values and save to file 
+     shell: |
+          cd /var/www/{{ domain }}
+          curl -s https://api.wordpress.org/secret-key/1.1/salt/ > salt.txt
+     args:
+       warn: false
+     tags: [ wordpress ]
+
+   - name: Remove old salt values in wpconfig
+     lineinfile:
+       path: /var/www/{{ domain }}/wp-config.php
+       state: absent
+       regexp: '^(.*)AUTH_KEY(.*)$'
+     tags: [ wordpress ]  
+
+   - name: Remove old salt values in wpconfig
+     lineinfile:
+       path: /var/www/{{ domain }}/wp-config.php
+       state: absent
+       regexp: '^(.*)LOGGED_IN_KEY(.*)$'
+     tags: [ wordpress ]
+
+   - name: Remove old salt values in wpconfig
+     lineinfile:
+       path: /var/www/{{ domain }}/wp-config.php
+       state: absent
+       regexp: '^(.*)NONCE_KEY(.*)$'
+     tags: [ wordpress ]
+
+   - name: Remove old salt values in wpconfig
+     lineinfile:
+       path: /var/www/{{ domain }}/wp-config.php
+       state: absent
+       regexp: '^(.*)AUTH_SALT(.*)$'
+     tags: [ wordpress ]
+       
+   - name: Remove old salt values in wpconfig
+     lineinfile:
+       path: /var/www/{{ domain }}/wp-config.php
+       state: absent
+       regexp: '^(.*)LOGGED_IN_SALT(.*)$'
+     tags: [ wordpress ]
+
+   - name: Remove old salt values in wpconfig
+     lineinfile:
+       path: /var/www/{{ domain }}/wp-config.php
+       state: absent
+       regexp: '^(.*)NONCE_SALT(.*)$'
+     tags: [ wordpress ]
+
+   - name: Replace salt values in wpconfig 
+     blockinfile:
+       block: "{{ lookup('file', '/var/www/{{ domain }}/salt.txt') }}"
+       path: /var/www/{{ domain }}/wp-config.php
+       marker: "{mark}"
+       marker_begin: "*/"
+       marker_end: "/**"
+       insertafter: '^(.*)Authentication Unique Keys and Salts(.*)$'
+     tags: [ wordpress ]
+
+   - name: Delete the earlier saved salt values
+     shell: rm -f /var/www/{{ domain }}/salt.txt
+     args:
+       warn: false
+     tags: [ wordpress ]
+
+   - name: Replace line "DB_NAME"
+     lineinfile:
+       path: /var/www/{{ domain }}/wp-config.php
+       regexp: '^(.*)DB_NAME(.*)$'
+       line: "define( 'DB_NAME', '{{ mysql_db }}' );"
+     tags: [ wordpress ]
+
+   - name: Replace line "DB_USER"
+     lineinfile:
+       path: /var/www/{{ domain }}/wp-config.php
+       regexp: '^(.*)DB_USER(.*)$'
+       line: "define( 'DB_USER', '{{ mysql_user }}' );"
+     tags: [ wordpress ]
+
+   - name: Replace line "DB_PASSWORD"
+     lineinfile:
+       path: /var/www/{{ domain }}/wp-config.php
+       regexp: '^(.*)DB_PASSWORD(.*)$'
+       line: "define( 'DB_PASSWORD', '{{ mysql_pass }}' );"
+     tags: [ wordpress ]  
+
+   - name: Restarting apache
+     service: name=apache2 state=restarted enabled=true
+     tags: [ system ]
+
+   - name: Restarting MySQL
+     service: name=mysql state=restarted enabled=true
+     tags: [ system ]
+
+   - name: Adding required repos
+     apt_repository:
+       repo: ppa:certbot/certbot
+       state: present
+     tags: [ certbot ]
+
+   - name: Install certbot
+     apt: name=python-certbot-apache state=present
+     tags: [ certbot ]
+
+   - name: Create dir and generate certificate for domains
+     shell: |
+        mkdir /opt/letsencrypt
+        cd /opt/letsencrypt
+        certbot --apache --email {{ email }} --agree-tos -n --no-verify-ssl -d {{ domain }} --pre-hook "service apache2 stop" --post-hook "service apache2 restart" --redirect
+     args:
+       warn: false
+     tags: [ certbot ]
+
+   - name: Check if default index file exists
+     stat:
+       path: /var/www/{{ domain }}/index.html
+     register: index
+     tags: [ cleanup ]
+
+   - name: Remove default index file
+     shell: rm /var/www/{{ domain }}/index.html
+     when: index.stat.exists
+     args:
+       warn: false
+     tags: [ cleanup ]  
+
+   - name: Apt autoremove
+     shell: sudo apt autoremove -y
+     args:
+       warn: false
+     tags: [ cleanup ]
+...
