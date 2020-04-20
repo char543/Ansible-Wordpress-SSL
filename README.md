@@ -1,7 +1,7 @@
 # Ansible-Wordpress-SSL
 Ansible playbook to deploy wordpress on a hardened SSL server.
 
-I didn't want this to be complex or out of reach to anyone not familiar with ansible so i wanted to keep this playbook in a single file.
+I didn't want this to be complex or out of reach to anyone not familiar with ansible so i wanted to keep this playbook in a single file and as 'one liner' as possible.
 
 For now it is tested on ubuntu 18.04 but may work on other variants.
 
@@ -30,23 +30,28 @@ SSLProtocol -all +TLSv1.3 +TLSv1.2
 SSLOpenSSLConfCmd Curves X25519:secp521r1:secp384r1:prime256v1  
 SSLHonorCipherOrder On  
 Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"  
-Header always set X-Frame-Options DENY
-Header always set X-Content-Type-Options nosniff
-SSLCompression off
-SSLUseStapling on
-SSLSessionTickets Off
+Header always set X-Frame-Options DENY  
+Header always set X-Content-Type-Options nosniff  
+SSLCompression off  
+SSLUseStapling on  
+SSLSessionTickets Off  
 
 
-#####     SSLStaplingCache "shmcb:logs/stapling-cache(150000)"
+##### SSL stapling cache line must be outside of virtualhost block  
 
-SSL stapling cache line above must be outside of virtualhost block
+SSLStaplingCache "shmcb:logs/stapling-cache(150000)"
 
-Need to run sudo service apache2 restart 
+sudo service apache2 restart 
+
+Set cloudflare ssl to 'on'
+
 
 ########################################################################################################################
+
+
 ###### qualys ssl labs checker
 ###### enable dnssec
 ###### upguard
 ###### mozilla observatory
 
-Set cloudflare ssl to 'on'
+
