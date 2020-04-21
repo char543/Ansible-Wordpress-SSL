@@ -382,19 +382,6 @@
        warn: false
      tags: [ certbot ]
 
-   - name: Check if default index file exists
-     stat:
-       path: /var/www/{{ domain }}/index.html
-     register: index
-     tags: [ cleanup ]
-
-   - name: Remove default index file
-     shell: rm /var/www/{{ domain }}/index.html
-     when: index.stat.exists
-     args:
-       warn: false
-     tags: [ cleanup ]  
-
    - name: Add secure config block to apache2 config
      blockinfile:
        path: /etc/apache2/sites-available/{{ domain }}-le-ssl.conf
@@ -416,9 +403,22 @@
    - name: Add stapling cache line to apache2 config
      lineinfile:
        path: /etc/apache2/sites-available/{{ domain }}-le-ssl.conf
-       insertafter: '^(.*)</VirtualHost>(.*)$'
+       insertafter: '^(.*)</IfModule>(.*)$'
        line: 'SSLStaplingCache "shmcb:logs/stapling-cache(150000)"'
      tags: [ apache ]
+
+   - name: Check if default index file exists
+     stat:
+       path: /var/www/{{ domain }}/index.html
+     register: index
+     tags: [ cleanup ]
+
+   - name: Remove default index file
+     shell: rm /var/www/{{ domain }}/index.html
+     when: index.stat.exists
+     args:
+       warn: false
+     tags: [ cleanup ]  
 
    - name: Apt autoremove
      shell: sudo apt autoremove -y
