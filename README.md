@@ -11,6 +11,7 @@ Installs all required packages for operation
 Installs and securely configures Apache ( enforces strong ciphers, disables insecure versions of TLS, enables SSL stapling, forcing redirection via https, sets secure headers and does its best to obscure info given out by the server and a bunch of other security tweaks )  
 Installs and securely configures MySQL  
 Installs and configures WordPress + Config, Including salt values  
+Generates and installs certificates for your domain and a wildcard for `*`.yourdomain.com
 
 need to still do unattended upgrades, find a way to stop directory listing, possibly own/run apache as a user 
 ### Steps
