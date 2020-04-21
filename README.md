@@ -18,16 +18,16 @@ need to still do unattended upgrades, find a way to stop directory listing, poss
 
 Before you start, Set cloudflare ssl to 'off' (or turn off your other cdn / domain based ssl). This playbook assumes a fresh server, it may work otherwise based on existing configuration but it's reccomended to begin with a fresh one.
 
-You may want to adjust the variables at the top of the playbook:
+You will want to adjust the variables at the top of the playbook:
 
   vars:
-    username: nonroot # (name of non root user for server setup and operation)  
-    mysql_user: dbuser # (name of database user)  
-    mysql_pass: pass # (mysql user password)  
-    mysql_db: wpdb # (wordpress database name)  
-    mysql_root_pass: root # (mysql root password)  
-    email: your-email@site.com # (your email address)  
-    domain: yourdomain.com # (your site domain)  
+    username: nonroot ***# (name of non root user for server setup and operation)***  
+    mysql_user: dbuser ***# (name of database user)***  
+    mysql_pass: pass ***# (mysql user password)***  
+    mysql_db: wpdb ***# (wordpress database name)***  
+    mysql_root_pass: root ***# (mysql root password)***  
+    email: your-email@site.com ***# (your email address)***  
+    domain: yourdomain.com # ***(your site domain)***  
 
 #### 1) Install Ansible with this command
 `sudo apt update && sudo apt install software-properties-common && sudo apt install python-apt -y && sudo apt-add-repository --yes --update ppa:ansible/ansible && sudo apt install ansible -y`
