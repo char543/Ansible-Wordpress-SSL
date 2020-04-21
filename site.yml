@@ -104,12 +104,6 @@
        insertafter: '^(.*)ServerAdmin(.*)$'
      tags: [ apache ]  
 
-   - name: Lineinfile ServerAlias apache
-     lineinfile:
-       path: /etc/apache2/sites-available/000-default.conf
-       line: "     ServerAlias www.{{ domain }}"
-       insertafter: '^(.*)ServerName(.*)$'
-
    - name: Add directive block to apache2 config for follow symlinks / enable .htaccess files
      blockinfile:
        path: /etc/apache2/sites-available/000-default.conf
@@ -137,12 +131,12 @@
        line: 'ServerTokens Prod'
      tags: [ apache ]   
 
-   - name: Edit security.conf to obscure server info 
+   - name: Edit security.conf to turn server signature off
      lineinfile:
        path: /etc/apache2/conf-enabled/security.conf
        regexp: '^ServerSignature(.*)$'
        line: 'ServerSignature Off'
-     tags: [ apache ] 
+     tags: [ apache ]
 
    - name: Enable rewrite module
      shell: sudo a2enmod rewrite
@@ -425,4 +419,10 @@
      args:
        warn: false
      tags: [ cleanup ]
+     
+   - name: Ensure services are started
+     shell: sudo ufw restart && sudo service apache2 restart
+     args:
+       warn: false
+     tags: [ cleanup ]  
 ...
