@@ -12,7 +12,7 @@ Installs and securely configures Apache ( enforces strong ciphers, disables inse
 Installs and securely configures MySQL  
 Installs and configures WordPress + Config, Including salt values  
 
-
+need to still do unattended upgrades, find a way to stop directory listing, possibly own/run apache as a user 
 ### Steps
 
 Before you start, Set cloudflare ssl to 'off' (or turn off your other cdn / domain based ssl). This playbook assumes a fresh server, it may work otherwise based on existing configuration but it's reccomended to begin with a fresh one.
@@ -44,8 +44,5 @@ That's it! You can set cloudflare (or other) SSL back to 'on' and re-enable prox
 Below is a list of free services i used to audit the sites after deployment.
 
 ###### qualys ssl labs checker
-###### enable dnssec
 ###### upguard
 ###### mozilla observatory
-
-
