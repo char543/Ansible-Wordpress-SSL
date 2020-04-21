@@ -1,9 +1,9 @@
 # Ansible-Wordpress-SSL
 Ansible playbook to deploy wordpress on a hardened SSL server.
 
-I didn't want this to be complex or out of reach to anyone not familiar with ansible so i wanted to keep this playbook in a single file and as 'one liner' as possible but still make sure it could compete with commercial sites in terms of security
+I didn't want this to be complex or out of reach to anyone not familiar with ansible so i wanted to keep this playbook in a single file and as user friendly as possible but still make sure it could compete with commercial sites in terms of security.
 
-For now it is tested on ubuntu 18.04 but may work on other variants.
+For now it is tested on Ubuntu 18.04 but may work on other variants.
 
 ## What does it do?
 Updates & Upgrades the OS  
