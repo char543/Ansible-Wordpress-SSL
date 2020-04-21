@@ -413,6 +413,13 @@
                SSLSessionTickets Off
      tags: [ apache ]
 
+   - name: Add stapling cache line to apache2 config
+     lineinfile:
+       path: /etc/apache2/sites-available/{{ domain }}-le-ssl.conf
+       insertafter: '^(.*)</VirtualHost>(.*)$'
+       line: ""
+     tags: [ apache ]
+
    - name: Apt autoremove
      shell: sudo apt autoremove -y
      args:
