@@ -6,19 +6,29 @@ I didn't want this to be complex or out of reach to anyone not familiar with ans
 For now it is tested on ubuntu 18.04 but may work on other variants.
 
 ## What does it do?
+It updates and upgrades the operating system, installs all required packages for operation, installs and securely configures apache web server (directory listing / indexing off, enforcing ciphers and forcing redirection via https, sets secure headers and does its best to obscure info given out by the server and a bunch of others). It installs and configures WordPress and even sets up the salt values in the config file for you in one click. 
+
 
 ### Steps
 
 Before you start, Set cloudflare ssl to 'off' (or turn off your other cdn / domain based ssl). This playbook assumes a fresh server, it may work otherwise based on existing configuration but it's reccomended to begin with a fresh one.
 
+You may want to adjust the variables at the top of the playbook:
+
+  vars:
+    username: nonroot # (name of non root user for server setup and operation)
+    mysql_user: dbuser # (name of database user)
+    mysql_pass: pass # (mysql user password)
+    mysql_db: wpdb # (wordpress database name)
+    mysql_root_pass: root # (mysql root password)
+    email: your-email@site.com # (your email address)
+    domain: yourdomain.com # (your site domain)
+
 #### 1) Install Ansible with this command
 sudo apt update && sudo apt install software-properties-common && sudo apt install python-apt -y && sudo apt-add-repository --yes --update ppa:ansible/ansible && sudo apt install ansible -y
 
 #### 2) Run playbook
-You may want to adjust the variables at the top of the playbook:
-
-
-Run the playbook with: sudo ansible-playbook site.yml
+sudo ansible-playbook site.yml
 
 #### 3) Generate wildcard certificates (*.mydomain.com) for our domain 
 certbot certonly --manual -d *.{{ domain }} -d {{ domain }} --agree-tos --no-bootstrap --manual-public-ip-logging-ok --expand --preferred-challenges dns-01 --server https://acme-v02.api.letsencrypt.org/directory
