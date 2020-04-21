@@ -417,7 +417,7 @@
      lineinfile:
        path: /etc/apache2/sites-available/{{ domain }}-le-ssl.conf
        insertafter: '^(.*)</VirtualHost>(.*)$'
-       line: ""
+       line: 'SSLStaplingCache "shmcb:logs/stapling-cache(150000)"'
      tags: [ apache ]
 
    - name: Apt autoremove
