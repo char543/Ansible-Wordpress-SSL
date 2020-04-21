@@ -6,11 +6,11 @@ I didn't want this to be complex or out of reach to anyone not familiar with ans
 For now it is tested on ubuntu 18.04 but may work on other variants.
 
 ## What does it do?
-Updates & Upgrades the OS
-Installs all required packages for operation
-Installs and securely configures Apache ( enforces strong ciphers, disables insecure versions of TLS, enables SSL stapling, forcing redirection via https, sets secure headers and does its best to obscure info given out by the server and a bunch of other security tweaks )
-Installs and securely configures MySQL
-Installs and configures WordPress + Config, Including salt values
+Updates & Upgrades the OS  
+Installs all required packages for operation  
+Installs and securely configures Apache ( enforces strong ciphers, disables insecure versions of TLS, enables SSL stapling, forcing redirection via https, sets secure headers and does its best to obscure info given out by the server and a bunch of other security tweaks )  
+Installs and securely configures MySQL  
+Installs and configures WordPress + Config, Including salt values  
 
 
 ### Steps
