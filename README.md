@@ -11,7 +11,7 @@ Installs all required packages for operation
 Installs and securely configures Apache ( enforces strong ciphers, disables insecure versions of TLS, enables SSL stapling, forcing redirection via https, sets secure headers and does its best to obscure info given out by the server and a bunch of other security tweaks )  
 Installs and securely configures MySQL  
 Installs and configures WordPress + Config, Including salt values  
-Generates and installs certificates for your domain and a wildcard for `*`.yourdomain.com
+Generates and installs certificates for your domain and a wildcard for *.yourdomain.com
 
 need to still do unattended upgrades, find a way to stop directory listing, possibly own/run apache as a user 
 ### Steps
@@ -30,13 +30,13 @@ You may want to adjust the variables at the top of the playbook:
     domain: yourdomain.com # (your site domain)
 
 #### 1) Install Ansible with this command
-sudo apt update && sudo apt install software-properties-common && sudo apt install python-apt -y && sudo apt-add-repository --yes --update ppa:ansible/ansible && sudo apt install ansible -y
+`sudo apt update && sudo apt install software-properties-common && sudo apt install python-apt -y && sudo apt-add-repository --yes --update ppa:ansible/ansible && sudo apt install ansible -y`
 
 #### 2) Run playbook
-sudo ansible-playbook site.yml
+`sudo ansible-playbook site.yml`
 
 #### 3) Generate wildcard certificates (*.mydomain.com) for our domain 
-certbot certonly --manual -d *.{{ domain }} -d {{ domain }} --agree-tos --no-bootstrap --manual-public-ip-logging-ok --expand --preferred-challenges dns-01 --server https://acme-v02.api.letsencrypt.org/directory
+`certbot certonly --manual -d *.{{ domain }} -d {{ domain }} --agree-tos --no-bootstrap --manual-public-ip-logging-ok --expand --preferred-challenges dns-01 --server https://acme-v02.api.letsencrypt.org/directory`
 
 ########################################################################################################################
 
