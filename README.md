@@ -15,7 +15,10 @@ Before you start, Set cloudflare ssl to 'off' (or turn off your other cdn / doma
 sudo apt update && sudo apt install software-properties-common && sudo apt install python-apt -y && sudo apt-add-repository --yes --update ppa:ansible/ansible && sudo apt install ansible -y
 
 #### 2) Run playbook
-sudo ansible-playbook site.yml
+You may want to adjust the variables at the top of the playbook:
+
+
+Run the playbook with: sudo ansible-playbook site.yml
 
 #### 3) Generate wildcard certificates (*.mydomain.com) for our domain 
 certbot certonly --manual -d *.{{ domain }} -d {{ domain }} --agree-tos --no-bootstrap --manual-public-ip-logging-ok --expand --preferred-challenges dns-01 --server https://acme-v02.api.letsencrypt.org/directory
