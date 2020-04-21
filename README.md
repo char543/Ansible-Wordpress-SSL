@@ -1,12 +1,16 @@
 # Ansible-Wordpress-SSL
 Ansible playbook to deploy wordpress on a hardened SSL server.
 
-I didn't want this to be complex or out of reach to anyone not familiar with ansible so i wanted to keep this playbook in a single file and as 'one liner' as possible.
+I didn't want this to be complex or out of reach to anyone not familiar with ansible so i wanted to keep this playbook in a single file and as 'one liner' as possible but still make sure it could compete with commercial sites in terms of security
 
 For now it is tested on ubuntu 18.04 but may work on other variants.
 
 ## What does it do?
-It updates and upgrades the operating system, installs all required packages for operation, installs and securely configures apache web server (directory listing / indexing off, enforcing ciphers and forcing redirection via https, sets secure headers and does its best to obscure info given out by the server and a bunch of others). It installs and configures WordPress and even sets up the salt values in the config file for you in one click. 
+Updates & Upgrades the OS
+Installs all required packages for operation
+Installs and securely configures Apache ( enforces strong ciphers, disables insecure versions of TLS, enables SSL stapling, forcing redirection via https, sets secure headers and does its best to obscure info given out by the server and a bunch of other security tweaks )
+Installs and securely configures MySQL
+Installs and configures WordPress + Config, Including salt values
 
 
 ### Steps
@@ -32,32 +36,6 @@ sudo ansible-playbook site.yml
 
 #### 3) Generate wildcard certificates (*.mydomain.com) for our domain 
 certbot certonly --manual -d *.{{ domain }} -d {{ domain }} --agree-tos --no-bootstrap --manual-public-ip-logging-ok --expand --preferred-challenges dns-01 --server https://acme-v02.api.letsencrypt.org/directory
-
-#### 4) Harden Apache
-Add this block of text, uncommented, to apache ssl conf inside vhost block. Normally located @ /etc/apache2/sites-available/***mydomain.com-le-ssl.conf***
-
-######     APACHE 2 SECURE CONFIG                                                                                     
-
-SSLCipherSuite EECDH+AESGCM:EDH+AESGCM  
-SSLProtocol -all +TLSv1.3 +TLSv1.2  
-SSLOpenSSLConfCmd Curves X25519:secp521r1:secp384r1:prime256v1  
-SSLHonorCipherOrder On  
-Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"  
-Header always set X-Frame-Options DENY  
-Header always set X-Content-Type-Options nosniff  
-SSLCompression off  
-SSLUseStapling on  
-SSLSessionTickets Off  
-
-
-##### SSL stapling cache line must be outside of virtualhost block  
-
-SSLStaplingCache "shmcb:logs/stapling-cache(150000)"
-
-
-#### 5) Restart Apache
-sudo service apache2 restart 
-
 
 ########################################################################################################################
 
