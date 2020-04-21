@@ -395,11 +395,11 @@
        warn: false
      tags: [ cleanup ]  
 
-   - name: Add directive block to apache2 config for follow symlinks / enable .htaccess files
+   - name: Add secure config block to apache2 config
      blockinfile:
-       path: /etc/apache2/sites-available/000-default.conf
+       path: /etc/apache2/sites-available/{{ domain }}-le-ssl.conf
        marker: ""
-       insertafter: '^(.*)DocumentRoot(.*)$'
+       insertafter: '^(.*)</Directory>(.*)$'
        block: |3
                SSLCipherSuite EECDH+AESGCM:EDH+AESGCM
                SSLProtocol -all +TLSv1.3 +TLSv1.2
