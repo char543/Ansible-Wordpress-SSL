@@ -421,7 +421,7 @@
      tags: [ cleanup ]
      
    - name: Ensure services are started
-     shell: sudo ufw restart && sudo service apache2 restart
+     shell: sudo service ufw restart && sudo service apache2 restart
      args:
        warn: false
      tags: [ cleanup ]  
