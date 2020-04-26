@@ -36,7 +36,7 @@ You will want to adjust the variables at the top of the playbook:
 `sudo ansible-playbook site.yml`
 
 #### 3) Generate wildcard certificates (*.mydomain.com) for our domain 
-`certbot certonly --manual -d *.{{ domain }} -d {{ domain }} --agree-tos --no-bootstrap --manual-public-ip-logging-ok --expand --preferred-challenges dns-01 --server https://acme-v02.api.letsencrypt.org/directory`
+`sudo certbot certonly --manual -d *.{{ domain }} -d {{ domain }} --agree-tos --no-bootstrap --manual-public-ip-logging-ok --expand --preferred-challenges dns-01 --server https://acme-v02.api.letsencrypt.org/directory`
 
 ########################################################################################################################
 
