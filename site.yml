@@ -169,7 +169,7 @@
      tags: [ apache ]
 
    - name: Enable php fpm
-     shell: a2enmod proxy_fcgi setenvif && systemctl restart apache2 && a2enconf php7.4-fpm && systemctl reload apache2
+     shell: a2enmod proxy_fcgi setenvif && systemctl restart apache2 && a2enconf php7.2-fpm && systemctl reload apache2
      args:
        warn: false
      tags: [ apache ]       
